@@ -1,113 +1,329 @@
-import Image from "next/image";
+"use client"
+import { Button } from '@/components/ui/button'; // Adjust the path as necessary
+import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel
+} from '@/components/ui/alert-dialog';
+import { Alert } from '@/components/ui/alert';
+import { useState } from 'react';
 
-export default function Home() {
+
+const symbols = [
+  "🍒", "🍋", "🍉", "🍇", "🍓", "🍍", "🍏", "🍆", "🍈", "🥭", "🍑",
+  "🍎", "🍊", "🍐", "🍔", "🍕", "🍲", "🍜", "🍱", "🍣", "🍙", "🍚",
+  "🍛", "🍝", "🍠", "🍢", "🍥", "🍘", "🍿", "🥟", "🥠", "🥡", "🥢",
+  "🥣", "🥤", "🍶", "🍵", "🍴", "🍽", "🥄", "🍩", "🍪", "🍫", "🍬",
+  "🍭", "🍮", "🍯", "🍰", "🎂", "🍨", "🍧", "🍡", "🍦"
+];
+
+const values = {
+    "🍒": 1000,
+    "🍋": 500,
+    "🍉": 2000,
+    "🍇": 3000,
+    "🍓": 1500,
+    "🍍": 2500,
+    "🍏": 800,
+    "🍆": 1200,
+    "🍈": 1800,
+    "🥭": 2200,
+    "🍑": 10000, // Nilai jackpot yang lebih tinggi
+    "🍎": 600,
+    "🍊": 700,
+    "🍐": 800,
+    "🍔": 1000,
+    "🍕": 1100,
+    "🍲": 1200,
+    "🍜": 1300,
+    "🍱": 1400,
+    "🍣": 1500,
+    "🍛": 1600,
+    "🍝": 1700,
+    "🍠": 1800,
+    "🍢": 1900,
+    "🍥": 2000,
+    "🍘": 2100,
+    "🍿": 2200,
+    "🥟": 2300,
+    "🥠": 2400,
+    "🥡": 2500,
+    "🥢": 2600,
+    "🥣": 2700,
+    "🥤": 2800,
+    "🍶": 2900,
+    "🍵": 3000,
+    "🍴": 3100,
+    "🍽": 3200,
+    "🥄": 3300,
+    "🍩": 3400,
+    "🍪": 3500,
+    "🍫": 3600,
+    "🍬": 3700,
+    "🍭": 3800,
+    "🍮": 3900,
+    "🍯": 4000,
+    "🍰": 4100,
+    "🎂": 4200,
+    "🍨": 4300,
+    "🍧": 4400,
+    "🍡": 4500,
+    "🍦": 4600
+};
+export default function Dashboard() {
+  const [balance, setBalance] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const [result, setResult] = useState('');
+  const [slotSymbols, setSlotSymbols] = useState(["🍒", "🍋", "🍉"]);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [actionType, setActionType] = useState('');
+  const [amount, setAmount] = useState('');
+  const [autoSpinCount, setAutoSpinCount] = useState(0);
+
+  const spinCost = 1000;
+
+  const updateBalance = (amount) => {
+    setBalance(prevBalance => prevBalance + amount);
+  };
+
+  const getRandomSymbol = () => {
+    return symbols[Math.floor(Math.random() * symbols.length)];
+  };
+
+  const spin = () => {
+    if (spinning || balance < spinCost) {
+      setAlertMessage("Saldo tidak cukup untuk melakukan spin.");
+      setAlertOpen(true);
+      return;
+    }
+    setSpinning(true);
+    updateBalance(-spinCost);
+    setResult('Semoga Beruntung');
+
+    const animateSpin = (index, delay) => {
+      setTimeout(() => {
+        const interval = setInterval(() => {
+          setSlotSymbols(prev => {
+            const newSymbols = [...prev];
+            newSymbols[index] = getRandomSymbol();
+            return newSymbols;
+          });
+        }, 100);
+
+        setTimeout(() => {
+          clearInterval(interval);
+          setSlotSymbols(prev => {
+            const newSymbols = [...prev];
+            newSymbols[index] = getRandomSymbol();
+            return newSymbols;
+          });
+          if (index === 2) {
+            determineResult();
+            setSpinning(false);
+          }
+        }, 1000);
+      }, delay);
+    };
+
+    animateSpin(0, 0);
+    animateSpin(1, 500);
+    animateSpin(2, 1000);
+  };
+
+  const determineResult = () => {
+    const [symbol1, symbol2, symbol3] = slotSymbols;
+
+    let winAmount = 0;
+    const jackpotChance = 0.10;
+
+    if (Math.random() < jackpotChance) {
+      winAmount = values["🍑"] + 5000;
+      setResult(`Jackpot! Anda mendapatkan tambahan Rp 5.000!`);
+    } else {
+      if (symbol1 === symbol2 && symbol2 === symbol3) {
+        winAmount = values[symbol1] * 3;
+      } else if (symbol1 === symbol2 || symbol2 === symbol3 || symbol1 === symbol3) {
+        if (symbol1 === symbol2) winAmount += values[symbol1] * 2;
+        if (symbol2 === symbol3) winAmount += values[symbol2] * 2;
+        if (symbol1 === symbol3) winAmount += values[symbol1] * 2;
+      }
+      if (winAmount > 0) {
+        setResult(`Anda mendapatkan Rp ${winAmount.toLocaleString()}!`);
+        updateBalance(winAmount);
+      } else {
+        setResult("Coba Kembali");
+      }
+    }
+  };
+
+  const handleAmountChange = (e) => {
+    setAmount(e.target.value);
+  };
+
+  const handleAction = () => {
+    const parsedAmount = parseInt(amount);
+    if (!isNaN(parsedAmount) && parsedAmount > 0) {
+      if (actionType === 'deposit') {
+        setBalance(prevBalance => {
+          const newBalance = prevBalance + parsedAmount;
+          setAlertMessage(`Deposit berhasil! Saldo Anda sekarang Rp ${newBalance.toLocaleString()}`);
+          return newBalance;
+        });
+      } else if (actionType === 'withdraw') {
+        if (parsedAmount <= balance) {
+          setBalance(prevBalance => {
+            const newBalance = prevBalance - parsedAmount;
+            setAlertMessage(`Penarikan berhasil! Saldo Anda sekarang Rp ${newBalance.toLocaleString()}`);
+            return newBalance;
+          });
+        } else {
+          setAlertMessage("Jumlah penarikan melebihi saldo.");
+        }
+      }
+      setAmount('');
+      setDialogOpen(false);
+      setAlertOpen(true);
+    } else {
+      setAlertMessage("Jumlah tidak valid.");
+      setAlertOpen(true);
+    }
+  };
+
+  const startAutoSpin = (count) => {
+    const totalSpinCost = spinCost * count;
+
+    if (spinning || balance < totalSpinCost) {
+      setAlertMessage("Saldo tidak cukup untuk melakukan spin.");
+      setAlertOpen(true);
+      return;
+    }
+
+    setAutoSpinCount(count);
+    setSpinning(true);
+    updateBalance(-totalSpinCost);
+    setResult('Semoga Beruntung');
+
+    const spinOneTime = (index) => {
+      setSlotSymbols(prev => {
+        const newSymbols = [...prev];
+        newSymbols[index] = getRandomSymbol();
+        return newSymbols;
+      });
+    };
+
+    const spinSequence = (repeats) => {
+      if (repeats > 0) {
+        setTimeout(() => {
+          for (let i = 0; i < 3; i++) {
+            spinOneTime(i);
+          }
+          setTimeout(() => {
+            determineResult();
+            spinSequence(repeats - 1);
+          }, 1000);
+        }, 500);
+      } else {
+        setSpinning(false);
+      }
+    };
+
+    spinSequence(count);
+  };
+
+  const openDialog = (type) => {
+    setActionType(type);
+    setDialogOpen(true);
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <div className="flex flex-col items-center p-6 bg-gray-100 min-h-screen">
+      <Card className="w-full max-w-md bg-white shadow-lg rounded-lg">
+        <CardHeader className="p-6 bg-gray-200 border-b">
+          <CardTitle className="text-xl font-semibold text-gray-800">Slot Machine Dashboard</CardTitle>
+          <CardDescription className="text-sm text-gray-600">Spin the wheel and try your luck!</CardDescription>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="flex justify-center gap-4 mb-6">
+            {slotSymbols.map((symbol, index) => (
+              <Card key={index} className="flex items-center justify-center w-24 h-24 bg-gray-50 border border-gray-300 rounded-md shadow-md">
+                <div className="text-3xl">{symbol}</div>
+              </Card>
+            ))}
+          </div>
+          <Button onClick={spin} className="w-full mb-4 bg-blue-600 text-white hover:bg-blue-700">
+            {spinning ? 'Spinning...' : 'Spin'}
+          </Button>
+          <div className="text-center mb-4 text-lg font-medium text-gray-800">{result}</div>
+          <div className="text-center mb-4 text-lg">
+            Debit: <span className="font-semibold text-green-600">{balance.toLocaleString()}</span>
+          </div>
+          <Button onClick={() => openDialog('deposit')} className="w-full mb-2 bg-green-600 text-white hover:bg-green-700">
+            Deposit
+          </Button>
+          <Button onClick={() => openDialog('withdraw')} className="w-full mb-4 bg-red-600 text-white hover:bg-red-700">
+            Withdraw
+          </Button>
+          <div className="flex flex-wrap justify-center gap-2">
+            {[10, 20, 30, 50, 100, 500, 1000].map(count => (
+              <Button key={count} onClick={() => startAutoSpin(count)} className="w-24 bg-purple-600 text-white hover:bg-purple-700">
+                {count}X Spin
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+        <CardFooter className="p-4 bg-gray-200 border-t">
+          <div className="text-center text-sm text-gray-600">
+            © 2024 Your Company. All Rights Reserved.
+          </div>
+        </CardFooter>
+      </Card>
+
+      {/* Alert Dialog */}
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{alertMessage}</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button onClick={() => setAlertOpen(false)}>OK</Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Deposit/Withdraw Dialog */}
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{actionType === 'deposit' ? 'Deposit' : 'Withdraw'} Funds</AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="p-4">
+            <label className="block text-gray-700 mb-2">Amount</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={handleAmountChange}
+              className="w-full p-2 border rounded-md"
             />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+          </div>
+          <AlertDialogFooter>
+            <Button onClick={() => handleAction()} className="mr-2">
+              {actionType === 'deposit' ? 'Deposit' : 'Withdraw'}
+            </Button>
+            <Button onClick={() => setDialogOpen(false)} variant="outline">
+              Cancel
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }
