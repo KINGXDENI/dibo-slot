@@ -245,44 +245,44 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex flex-col items-center p-6 bg-gray-100 min-h-screen">
-      <Card className="w-full max-w-md bg-white shadow-lg rounded-lg">
-        <CardHeader className="p-6 bg-gray-200 border-b">
-          <CardTitle className="text-xl font-semibold text-gray-800">Slot Machine Dashboard</CardTitle>
-          <CardDescription className="text-sm text-gray-600">Spin the wheel and try your luck!</CardDescription>
+      <div className="flex flex-col items-center p-8 bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
+      <Card className="w-full max-w-lg bg-white shadow-xl rounded-lg border border-gray-300">
+        <CardHeader className = "bg-gradient-to-r from-teal-400 to-teal-600 text-white p-6 rounded-t-lg text-center" >
+          <CardTitle className="text-2xl font-bold">Slot Machine Dashboard</CardTitle>
+          <CardDescription className="text-sm mt-1 text-white">Spin the wheel, win prizes, and manage your balance!</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           <div className="flex justify-center gap-4 mb-6">
             {slotSymbols.map((symbol, index) => (
-              <Card key={index} className="flex items-center justify-center w-24 h-24 bg-gray-50 border border-gray-300 rounded-md shadow-md">
-                <div className="text-3xl">{symbol}</div>
+              <Card key={index} className="flex items-center justify-center w-20 h-20 bg-gray-100 border border-gray-300 rounded-lg shadow-md">
+                <div className="text-4xl">{symbol}</div>
               </Card>
             ))}
           </div>
-          <Button onClick={spin} className="w-full mb-4 bg-blue-600 text-white hover:bg-blue-700">
+          <Button onClick={spin} className="w-full mb-4 bg-teal-500 text-white hover:bg-teal-600 transition duration-300">
             {spinning ? 'Spinning...' : 'Spin'}
           </Button>
-          <div className="text-center mb-4 text-lg font-medium text-gray-800">{result}</div>
-          <div className="text-center mb-4 text-lg">
+          <div className="text-center mb-4 text-lg font-semibold text-gray-700">{result}</div>
+          <div className="text-center mb-4 text-lg font-medium text-gray-800">
             Debit: <span className="font-semibold text-green-600">{balance.toLocaleString()}</span>
           </div>
-          <Button onClick={() => openDialog('deposit')} className="w-full mb-2 bg-green-600 text-white hover:bg-green-700">
+          <Button onClick={() => openDialog('deposit')} className="w-full mb-2 bg-green-500 text-white hover:bg-green-600 transition duration-300">
             Deposit
           </Button>
-          <Button onClick={() => openDialog('withdraw')} className="w-full mb-4 bg-red-600 text-white hover:bg-red-700">
+          <Button onClick={() => openDialog('withdraw')} className="w-full mb-4 bg-red-500 text-white hover:bg-red-600 transition duration-300">
             Withdraw
           </Button>
           <div className="flex flex-wrap justify-center gap-2">
             {[10, 20, 30, 50, 100, 500, 1000].map(count => (
-              <Button key={count} onClick={() => startAutoSpin(count)} className="w-24 bg-purple-600 text-white hover:bg-purple-700">
+              <Button key={count} onClick={() => startAutoSpin(count)} className="w-24 bg-purple-500 text-white hover:bg-purple-600 transition duration-300">
                 {count}X Spin
               </Button>
             ))}
           </div>
         </CardContent>
-        <CardFooter className="p-4 bg-gray-200 border-t">
-          <div className="text-center text-sm text-gray-600">
-            © 2024 Your Company. All Rights Reserved.
+        <CardFooter className = "bg-gradient-to-r from-teal-400 to-teal-600 p-4 text-center border-t" >
+          <div className="text-sm text-white">
+            © 2024 Dibo. All Rights Reserved.
           </div>
         </CardFooter>
       </Card>
@@ -291,8 +291,11 @@ export default function Dashboard() {
       <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{alertMessage}</AlertDialogTitle>
+            <AlertDialogTitle>Notification</AlertDialogTitle>
           </AlertDialogHeader>
+          <div className="p-4">
+            {alertMessage}
+          </div>
           <AlertDialogFooter>
             <Button onClick={() => setAlertOpen(false)}>OK</Button>
           </AlertDialogFooter>
